@@ -16,6 +16,9 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: 22
+      - name: Generate lockfile
+        working-directory: tmp-sentinel-lock
+        run: npm install --package-lock-only --ignore-scripts --no-fund
       - name: Install exact dependency tree
         working-directory: tmp-sentinel-lock
         run: npm ci
