@@ -1,0 +1,8 @@
+{
+  "name": "sentinel-trading-intelligence-desk",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "workspaces": ["apps/*", "packages/*"],
+  "devDependencies": {"concurrently": "^9.1.2"}
+}
