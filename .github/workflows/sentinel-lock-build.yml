@@ -5,24 +5,31 @@ on:
     paths:
       - 'tmp-sentinel-lock/**'
       - '.github/workflows/sentinel-lock-build.yml'
+permissions:
+  contents: read
 jobs:
   lock:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: 22
-      - name: Generate lockfile
+      - name: Install exact dependency tree
         working-directory: tmp-sentinel-lock
-        run: npm install --package-lock-only --ignore-scripts --no-fund
-      - name: Production dependency audit
+        run: npm ci
+      - name: Full dependency audit
         working-directory: tmp-sentinel-lock
-        run: npm audit --omit=dev --audit-level=high
-      - uses: actions/upload-artifact@v4
+        run: npm audit --audit-level=high
+      - name: Pack validation dependencies
+        working-directory: tmp-sentinel-lock
+        run: tar -czf node_modules-linux.tgz node_modules
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: sentinel-package-lock
-          path: tmp-sentinel-lock/package-lock.json
+          name: sentinel-validation-deps
+          path: |
+            tmp-sentinel-lock/package-lock.json
+            tmp-sentinel-lock/node_modules-linux.tgz
           if-no-files-found: error
+          compression-level: 0
