@@ -1,0 +1,28 @@
+name: sentinel-lock-build
+on:
+  push:
+    branches: [sentinel-lock-build]
+    paths:
+      - 'tmp-sentinel-lock/**'
+      - '.github/workflows/sentinel-lock-build.yml'
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Generate lockfile
+        working-directory: tmp-sentinel-lock
+        run: npm install --package-lock-only --ignore-scripts --no-fund
+      - name: Production dependency audit
+        working-directory: tmp-sentinel-lock
+        run: npm audit --omit=dev --audit-level=high
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sentinel-package-lock
+          path: tmp-sentinel-lock/package-lock.json
+          if-no-files-found: error
